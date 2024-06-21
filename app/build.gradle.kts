@@ -99,12 +99,8 @@ dependencies {
     // JSON Converter
     implementation("com.squareup.retrofit2:converter-gson:2.10.0")
 
-    //Room
-    val roomVersion = "2.6.1"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
+    //Realm DB
+    implementation("io.realm:realm-android-library:10.10.1")
 
     val composeVersion = "1.6.8"
     implementation("androidx.core:core-ktx:1.13.1")
@@ -122,3 +118,4 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
 }
+apply(plugin = "realm-android")

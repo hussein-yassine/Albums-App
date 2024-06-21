@@ -1,10 +1,7 @@
 package com.cme.songscompose.screens.albums
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cme.songscompose.data.model.Album
 import com.cme.songscompose.data.repositories.AlbumsRepository
 import com.cme.songscompose.utils.AlbumUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
