@@ -1,8 +1,9 @@
 plugins {
     id("com.android.application")
+    id("dagger.hilt.android.plugin")
     id("kotlin-android")
     id("kotlin-kapt")
-    id("dagger.hilt.android.plugin")
+    id("kotlin-parcelize")
 }
 kapt {
     correctErrorTypes = true
@@ -43,9 +44,10 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
+        kotlinCompilerExtensionVersion = "1.5.7"
     }
     packaging {
         resources {
@@ -55,14 +57,19 @@ android {
 }
 
 dependencies {
+    //Logging
+    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    //Dagger - Hilt
+    //Hilt DI
     val hiltVersion = "2.50"
     implementation("com.google.dagger:hilt-android:$hiltVersion")
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
-    implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
-
     kapt("androidx.hilt:hilt-compiler:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-fragment:1.2.0")
+    // For local unit tests
+    testImplementation("com.google.dagger:hilt-android-testing:$hiltVersion")
+    testAnnotationProcessor("com.google.dagger:hilt-compiler:$hiltVersion")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // implementation "androidx.compose.material:material-icons-extended:$compose_version"
@@ -79,7 +86,11 @@ dependencies {
     // Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
 
-    // Retrofit
+    //Kotlin Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.7")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
     implementation("com.squareup.retrofit2:retrofit:2.10.0")
 
     // OkHttp
@@ -99,7 +110,6 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material3:material3-android:1.2.1")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
