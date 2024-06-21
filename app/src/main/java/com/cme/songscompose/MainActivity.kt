@@ -29,7 +29,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SongsApp()
+            SongsApp{
+                AppNavHost()
+            }
         }
     }
 }
@@ -38,23 +40,17 @@ class MainActivity : ComponentActivity() {
 
 @ExperimentalComposeUiApi
 @Composable
-fun SongsApp() {
+fun SongsApp(content: @Composable () -> Unit) {
     SongsComposeTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) {
-
-            Column(verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                AppNavHost()
-            }
-        }
+        content()
     }
 }
 
-
+@ExperimentalComposeUiApi
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    SongsComposeTheme {
-        Text("Android")
+    SongsApp{
+        AppNavHost()
     }
 }

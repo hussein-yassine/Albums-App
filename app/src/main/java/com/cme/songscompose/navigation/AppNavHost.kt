@@ -8,9 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.cme.songscompose.ui.screens.album_details.AlbumDetailsScreen
-import com.cme.songscompose.ui.screens.albums.AlbumsScreen
-import com.cme.songscompose.ui.screens.albums.AlbumsViewModel
+import com.cme.songscompose.screens.album_details.AlbumDetailsScreen
+import com.cme.songscompose.screens.albums.AlbumsScreen
+import com.cme.songscompose.screens.albums.AlbumsViewModel
 
 @ExperimentalComposeUiApi
 @Composable

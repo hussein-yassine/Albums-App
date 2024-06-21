@@ -16,10 +16,10 @@ data class Feed(
     val id: String,
     @SerializedName("links")
     val links: List<Link>,
-    @SerializedName("results")
-    val albums: List<Album>,
     @SerializedName("title")
     val title: String,
     @SerializedName("updated")
-    val updated: String
+    val updated: String,
+    @SerializedName("results")
+    val albums: List<Album>
 )

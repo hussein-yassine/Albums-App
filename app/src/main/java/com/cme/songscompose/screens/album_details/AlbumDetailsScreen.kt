@@ -1,4 +1,4 @@
-package com.cme.songscompose.ui.screens.album_details
+package com.cme.songscompose.screens.album_details
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
