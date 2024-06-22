@@ -2,6 +2,9 @@
 
 This project is an Android application that displays the top 100 albums. The app fetches data from an API and saves it in a local database using Realm, allowing for an offline-first experience. Users can retry fetching data if the initial network request fails.
 
+## Demo
+Please refer to the demo by clicking [Here](https://drive.google.com/file/d/1H1WJJZaB1alht9HeZR600vF8ABovFrOl/view?usp=sharing)
+
 ## Features
 
 - Display a list of the top 100 albums.
