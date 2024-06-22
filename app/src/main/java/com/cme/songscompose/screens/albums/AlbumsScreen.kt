@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -77,7 +78,10 @@ fun AlbumsScreen(navController: NavController, viewModel: AlbumsViewModel = hilt
                 if (uiState.value.isLoading) {
                     CircularProgressIndicator(color = Color.Black)
                 } else if (uiState.value.error != null) {
-                    Text(text = uiState.value.error!!)
+                    Text(
+                        text = "Failed to load albums. Please try again.",
+                        textAlign = TextAlign.Center
+                    )
                 } else {
                     val albumsUiState = uiState.value
                     MainContent(
