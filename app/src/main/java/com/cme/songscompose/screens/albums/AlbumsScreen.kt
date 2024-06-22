@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.cme.songscompose.data.ui_models.AlbumUiState
 import com.cme.songscompose.navigation.AppScreens
 import com.cme.songscompose.widgets.AlbumItem
 import timber.log.Timber
@@ -53,15 +55,14 @@ fun AlbumsScreen(navController: NavController, viewModel: AlbumsViewModel = hilt
                 .fillMaxSize()
                 .padding(padding),
             navController = navController,
-            viewModel = viewModel
+            uiState =  viewModel.uiState.collectAsState()
         )
     })
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainContent(modifier: Modifier,navController: NavController, viewModel: AlbumsViewModel) {
-    val uiState = viewModel.uiState.collectAsState()
+fun MainContent(modifier: Modifier,navController: NavController, uiState: State<AlbumUiState>) {
 
     Column(
         modifier = modifier,
