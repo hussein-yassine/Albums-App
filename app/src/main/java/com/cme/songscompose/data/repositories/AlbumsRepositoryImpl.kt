@@ -8,11 +8,18 @@ import com.cme.songscompose.utils.toRealmFeed
 import io.realm.Realm
 import io.realm.kotlin.where
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Singleton
 class AlbumsRepositoryImpl @Inject constructor(
@@ -29,15 +36,21 @@ class AlbumsRepositoryImpl @Inject constructor(
                 emit(Result.success(localFeed))
             }
             try {
-                fastLog("Repo getAlbums: FROM API")
                 val response = withContext(coroutineDispatcher) {
                     albumsApi.getTopSongs(count = count)
                 }
+                fastLog("Repo getAlbums: FROM API")
                 val realmFeed = response.feed.toRealmFeed()
                 saveFeedToLocal(realmFeed)
                 emit(Result.success(realmFeed))
             } catch (e: Exception) {
-                emit(Result.failure(e))
+                localFeed?.let { feed ->
+                    if (feed.albums?.isNotEmpty() == true){
+                        emit(Result.success(feed))
+                    } else{
+                        emit(Result.failure(e))
+                    }
+                } ?: run { emit(Result.failure(e)) }
             }
         }
     }
