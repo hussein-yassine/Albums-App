@@ -10,6 +10,11 @@ import com.cme.songscompose.data.ui_models.AlbumUiModel
 import com.cme.songscompose.data.ui_models.FeedUiModel
 import com.cme.songscompose.data.ui_models.GenreUiModel
 import io.realm.RealmList
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 fun Genre.toRealmGenre(): RealmGenre {
     return RealmGenre(
@@ -77,4 +82,15 @@ fun RealmAlbum.toUiModel(): AlbumUiModel {
         genres = genres.map { GenreUiModel(it.genreId, it.name, it.url) },
         url = url
     )
+}
+
+fun String.formatDate(): String {
+    return try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val outputFormat = SimpleDateFormat("MMM. dd, yyyy", Locale.US)
+        val date = inputFormat.parse(this)
+        outputFormat.format(date)
+    } catch (e: Exception) {
+        this
+    }
 }

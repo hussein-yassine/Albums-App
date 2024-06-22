@@ -3,6 +3,7 @@ package com.cme.songscompose.data.repositories
 import com.cme.songscompose.data.network.AlbumsApi
 import com.cme.songscompose.data.realm_models.RealmAlbum
 import com.cme.songscompose.data.realm_models.RealmFeed
+import com.cme.songscompose.utils.fastLog
 import com.cme.songscompose.utils.toRealmFeed
 import io.realm.Realm
 import io.realm.kotlin.where
@@ -10,7 +11,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,22 +22,14 @@ class AlbumsRepositoryImpl @Inject constructor(
 ) : AlbumsRepository {
 
     override suspend fun getAlbums(count: Int): Flow<Result<RealmFeed>> {
-        /*return withContext(coroutineDispatcher) {
-            try {
-                Result.success(albumsApi.getTopSongs(count = count))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Result.failure(e)
-            }
-        }*/
         return flow {
             val localFeed = getLocalFeed()
             if (localFeed?.albums?.isNotEmpty() == true) {
-                Timber.tag("Repo").e("getAlbums: FROM DB")
+                fastLog("Repo getAlbums: FROM DB")
                 emit(Result.success(localFeed))
             }
             try {
-                Timber.tag("Repo").e("getAlbums: FROM API")
+                fastLog("Repo getAlbums: FROM API")
                 val response = withContext(coroutineDispatcher) {
                     albumsApi.getTopSongs(count = count)
                 }
@@ -54,14 +46,27 @@ class AlbumsRepositoryImpl @Inject constructor(
         return realm.where<RealmFeed>().findFirst()?.let { realm.copyFromRealm(it) }
     }
 
-    private fun getLocalAlbums(): List<RealmAlbum> {
-        return realm.where<RealmAlbum>().findAll().map { realm.copyFromRealm(it) }
-    }
-
     private fun saveFeedToLocal(feed: RealmFeed) {
         realm.executeTransactionAsync { transactionRealm ->
             transactionRealm.insertOrUpdate(feed)
         }
     }
 
+    override suspend fun getAlbumById(albumId: String): Result<RealmAlbum> {
+        return withContext(coroutineDispatcher) {
+            val realm = Realm.getDefaultInstance()
+            try {
+                val album = realm.where(RealmAlbum::class.java).equalTo("id", albumId).findFirst()
+                if (album != null) {
+                    Result.success(realm.copyFromRealm(album))
+                } else {
+                    Result.failure(Exception("Album not found"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            } finally {
+                realm.close()
+            }
+        }
+    }
 }

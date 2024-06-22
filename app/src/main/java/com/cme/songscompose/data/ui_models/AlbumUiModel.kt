@@ -12,4 +12,20 @@ data class AlbumUiModel(
     val artworkUrl100: String,
     val genres: List<GenreUiModel>,
     val url: String
-)
+){
+    companion object {
+        fun default() = AlbumUiModel(
+            id = "",
+            artistName = "Unknown Artist",
+            name = "Unknown Album",
+            releaseDate = "Unknown Release Date",
+            kind = "Unknown Kind",
+            artistId = null,
+            artistUrl = null,
+            contentAdvisoryRating = null,
+            artworkUrl100 = "",
+            genres = listOf(),
+            url = ""
+        )
+    }
+}

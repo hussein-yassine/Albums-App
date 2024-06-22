@@ -9,8 +9,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.cme.songscompose.screens.album_details.AlbumDetailsScreen
+import com.cme.songscompose.screens.album_details.AlbumDetailsViewModel
 import com.cme.songscompose.screens.albums.AlbumsScreen
 import com.cme.songscompose.screens.albums.AlbumsViewModel
+import com.cme.songscompose.utils.Constants
 
 @ExperimentalComposeUiApi
 @Composable
@@ -26,17 +28,29 @@ fun AppNavHost() {
 
         val route = AppScreens.AlbumDetailsScreen.name
         composable(
-            route = "$route/{album_id}",
+            route = "$route/{album_id}/{copyright}",
             arguments = listOf(
                 navArgument(
-                    name = "album_id"
+                    name = Constants.Navigation.ALBUM_ID
+                ) {
+                    type = NavType.StringType
+                },
+                navArgument(
+                    name = Constants.Navigation.COPYRIGHT
                 ) {
                     type = NavType.StringType
                 }
             )
         ) { navBack ->
-            navBack.arguments?.getString("album_id")?.let { albumId ->
-                AlbumDetailsScreen(albumId = albumId)
+            navBack.arguments?.let { bundle ->
+                val albumId = bundle.getString(Constants.Navigation.ALBUM_ID)
+                val copyright = bundle.getString(Constants.Navigation.COPYRIGHT)
+                AlbumDetailsScreen(
+                    albumId = albumId ?: "",
+                    copyright = copyright ?: "",
+                    viewModel = hiltViewModel<AlbumDetailsViewModel>(),
+                    onBackPress = { navController.popBackStack() }
+                )
             }
         }
     }

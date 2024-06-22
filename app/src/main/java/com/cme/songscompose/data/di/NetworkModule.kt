@@ -3,6 +3,7 @@ package com.cme.songscompose.data.di
 
 import com.cme.songscompose.data.network.AlbumsApi
 import com.cme.songscompose.utils.Constants
+import com.cme.songscompose.utils.debug
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import dagger.Module
@@ -14,7 +15,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -25,7 +25,7 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideHttpLoggingInterceptor() = HttpLoggingInterceptor { message ->
-        Timber.tag("API").d("provideHttpLoggingInterceptor: %s", message)
+        debug(message)
     }.apply {
         level = HttpLoggingInterceptor.Level.BODY
     }

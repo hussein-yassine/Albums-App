@@ -36,7 +36,6 @@ fun NetworkImage(imageUrl: String, modifier: Modifier = Modifier) {
             model = ImageRequest.Builder(LocalContext.current)
                 .data(imageUrl)
                 .crossfade(true)
-                .size(250)
                 .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop

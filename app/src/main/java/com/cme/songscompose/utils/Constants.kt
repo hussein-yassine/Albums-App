@@ -2,7 +2,12 @@ package com.cme.songscompose.utils
 
 object Constants {
 
-    object RealmDb{
+    object Navigation {
+        const val ALBUM_ID = "album_id"
+        const val COPYRIGHT = "copyright"
+    }
+
+    object RealmDb {
         const val DB_NAME = "AlbumsDb.realm"
     }
 

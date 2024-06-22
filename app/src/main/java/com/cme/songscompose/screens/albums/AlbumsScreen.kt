@@ -22,18 +22,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.cme.songscompose.data.ui_models.AlbumUiState
 import com.cme.songscompose.navigation.AppScreens
 import com.cme.songscompose.widgets.AlbumItem
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumsScreen(navController: NavController, viewModel: AlbumsViewModel = hiltViewModel()) {
+    val uiState = viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -50,50 +50,49 @@ fun AlbumsScreen(navController: NavController, viewModel: AlbumsViewModel = hilt
             )
         },
         content = { padding ->
-        MainContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            navController = navController,
-            uiState =  viewModel.uiState.collectAsState()
-        )
+
+        if(uiState.value.isLoading){
+            CircularProgressIndicator(color = Color.Black)
+        }else if (uiState.value.error != null) {
+            Text(uiState.value.error!!)
+        } else {
+            val albumsUiState = uiState.value
+            MainContent(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                navController = navController,
+                albumsUiState =  albumsUiState
+            )
+        }
     })
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainContent(modifier: Modifier,navController: NavController, uiState: State<AlbumUiState>) {
+fun MainContent(modifier: Modifier,navController: NavController, albumsUiState: AlbumUiState) {
 
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (uiState.value.isLoading) {
-            CircularProgressIndicator(
-                color = Color.Black
-            )
-            Timber.tag("TAG").e("AlbumsScreen: LOADING")
+        val feedCopyright = albumsUiState.copyright
+        val albums = albumsUiState.albums
+        if (albums.isEmpty()) {
+            Text("No albums found")
         } else {
-            Timber.tag("TAG").e("AlbumsScreen: SUCCESS")
-            val albums = uiState.value.albums
-            if (albums.isEmpty()) {
-                Text("No albums found")
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2)
-                ) {
-                    items(albums) { album ->
-                        AlbumItem(album) { albumId ->
-                            navController.navigate(route = AppScreens.AlbumDetailsScreen.name+"/$albumId")
-                        }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2)
+            ) {
+                items(albums) { album ->
+                    AlbumItem(album) { albumId ->
+                        navController.navigate(
+                            route = AppScreens.AlbumDetailsScreen.name+"/$albumId"+"/$feedCopyright"
+                        )
                     }
                 }
             }
-        }
-        if (uiState.value.error != null) {
-            Timber.tag("TAG").e("AlbumsScreen: ERROR")
-            Text(uiState.value.error!!)
         }
     }
 }

@@ -61,6 +61,7 @@ dependencies {
     //Logging
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.35.1-alpha")
 
     //Hilt DI
     val hiltVersion = "2.50"

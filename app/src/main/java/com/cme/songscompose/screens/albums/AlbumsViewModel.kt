@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cme.songscompose.data.repositories.AlbumsRepository
 import com.cme.songscompose.data.ui_models.AlbumUiState
+import com.cme.songscompose.utils.fastLog
 import com.cme.songscompose.utils.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,13 +33,19 @@ class AlbumsViewModel @Inject constructor(
                     result.onSuccess { feed ->
                         _uiState.update { state ->
                             state.copy(
-                            isLoading = false,
+                                isLoading = false,
+                                copyright = feed.copyright,
                                 albums = feed.albums.map { it.toUiModel() }
                             )
                         }
                     }.onFailure { error ->
-                        Timber.tag("GET Albums ERROR").e(error, "launch: ")
-                        _uiState.update { it.copy(isLoading = false, error = error.localizedMessage) }
+                        fastLog("GET Albums ERROR ${error.message}")
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = error.localizedMessage
+                            )
+                        }
                     }
                 }
         }
