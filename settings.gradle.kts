@@ -7,6 +7,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SongsCompose"
+rootProject.name = "Albums Compose"
 include(":app")
  

@@ -3,6 +3,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("realm-android")
     id("kotlin-parcelize")
 }
 kapt {
@@ -101,6 +102,7 @@ dependencies {
 
     //Realm DB
     implementation("io.realm:realm-android-library:10.10.1")
+    implementation("io.realm:realm-transformer:10.18.0")
 
     val composeVersion = "1.6.8"
     implementation("androidx.core:core-ktx:1.13.1")
@@ -118,4 +120,3 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
 }
-apply(plugin = "realm-android")

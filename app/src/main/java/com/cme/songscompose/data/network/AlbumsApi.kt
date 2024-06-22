@@ -1,6 +1,6 @@
 package com.cme.songscompose.data.network
 
-import com.cme.songscompose.data.model.AlbumsResponse
+import com.cme.songscompose.data.api_models.AlbumsResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 

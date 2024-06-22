@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.realm.Realm
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
@@ -17,8 +18,8 @@ object RepositoriesModule {
     @Singleton
     @Provides
     fun provideAlbumsRepository(
-        albumsApi: AlbumsApi, coroutineDispatcher: CoroutineDispatcher
+        albumsApi: AlbumsApi, coroutineDispatcher: CoroutineDispatcher, realm: Realm
     ): AlbumsRepository = AlbumsRepositoryImpl(
-        albumsApi, coroutineDispatcher
+        albumsApi, coroutineDispatcher, realm
     )
 }

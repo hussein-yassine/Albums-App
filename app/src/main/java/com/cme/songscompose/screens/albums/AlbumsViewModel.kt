@@ -3,7 +3,8 @@ package com.cme.songscompose.screens.albums
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cme.songscompose.data.repositories.AlbumsRepository
-import com.cme.songscompose.utils.AlbumUiState
+import com.cme.songscompose.data.ui_models.AlbumUiState
+import com.cme.songscompose.utils.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,12 +29,18 @@ class AlbumsViewModel @Inject constructor(
         viewModelScope.launch {
             repository
                 .getAlbums(10)
-                .onSuccess { result ->
-                    Timber.tag("TAG").e("AlbumsVB: SUCCESS")
-                    _uiState.update { it.copy(isLoading = false, albums = result.feed.albums) }
-                }.onFailure { error ->
-                    Timber.tag("GET SONGS ERROR").e(error, "getTopSongs: ")
-                    _uiState.update { it.copy(isLoading = false, error = error.localizedMessage) }
+                .collect { result ->
+                    result.onSuccess { feed ->
+                        _uiState.update { state ->
+                            state.copy(
+                            isLoading = false,
+                                albums = feed.albums.map { it.toUiModel() }
+                            )
+                        }
+                    }.onFailure { error ->
+                        Timber.tag("GET Albums ERROR").e(error, "launch: ")
+                        _uiState.update { it.copy(isLoading = false, error = error.localizedMessage) }
+                    }
                 }
         }
     }

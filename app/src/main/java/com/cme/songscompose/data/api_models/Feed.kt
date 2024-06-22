@@ -1,11 +1,8 @@
-package com.cme.songscompose.data.model
-
+package com.cme.songscompose.data.api_models
 
 import com.google.gson.annotations.SerializedName
 
 data class Feed(
-    @SerializedName("author")
-    val author: Author,
     @SerializedName("copyright")
     val copyright: String,
     @SerializedName("country")
@@ -14,8 +11,6 @@ data class Feed(
     val icon: String,
     @SerializedName("id")
     val id: String,
-    @SerializedName("links")
-    val links: List<Link>,
     @SerializedName("title")
     val title: String,
     @SerializedName("updated")

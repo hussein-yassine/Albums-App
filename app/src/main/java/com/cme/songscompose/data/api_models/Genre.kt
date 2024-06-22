@@ -1,4 +1,4 @@
-package com.cme.songscompose.data.model
+package com.cme.songscompose.data.api_models
 
 
 import com.google.gson.annotations.SerializedName
