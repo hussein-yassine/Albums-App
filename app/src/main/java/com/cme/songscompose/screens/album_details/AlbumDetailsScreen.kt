@@ -1,5 +1,7 @@
 package com.cme.songscompose.screens.album_details
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -16,9 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.cme.songscompose.data.ui_models.AlbumUiModel
 import com.cme.songscompose.utils.formatDate
+import com.cme.songscompose.widgets.GenresRow
 import com.cme.songscompose.widgets.NetworkImage
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
@@ -67,7 +74,7 @@ fun AlbumDetailsScreen(
         }
         albumUiState.error != null -> {
             Text(
-                text = albumUiState.error ?: "An unknown error occurred",
+                text = albumUiState.error,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .fillMaxSize()
@@ -138,14 +145,8 @@ fun AlbumDetailsContent(
                 color = Color.Black
             )
             Spacer(modifier = Modifier.height(8.dp))
-            album.genres.forEach { genre ->
-                Text(
-                    text = genre.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+
+            GenresRow(genres = album.genres)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -154,7 +155,7 @@ fun AlbumDetailsContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp),
+                .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -167,6 +168,28 @@ fun AlbumDetailsContent(
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Visit the Album Button
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(album.url))
+            val context = LocalContext.current
+            Button(
+                onClick = {
+                    context.startActivity(intent, null)
+                },
+                modifier = Modifier
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                colors = ButtonDefaults.buttonColors(),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(text = "Visit The Album")
+            }
         }
     }
 }
