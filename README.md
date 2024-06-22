@@ -41,8 +41,8 @@ Please refer to the demo by clicking [Here](https://drive.google.com/file/d/1H1W
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/top-100-albums.git
-   cd top-100-albums
+   git clone https://github.com/hussein-yassine/Albums-App
+   cd Albums-App
 2. Open the project in Android Studio.
 
 3. Sync the project with Gradle files.
