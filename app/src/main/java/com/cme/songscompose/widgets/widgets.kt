@@ -119,7 +119,7 @@ fun GenresRow(genres: List<GenreUiModel>) {
                             shape = RoundedCornerShape(16.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .padding(end = 8.dp)
+                        .padding(start = 8.dp, end = 8.dp)
                 )
             }
         }

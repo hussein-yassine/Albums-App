@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -55,7 +58,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 @Composable
 fun AlbumDetailsScreen(
     albumId: String,
-    copyright:String,
+    copyright: String,
     viewModel: AlbumDetailsViewModel = hiltViewModel(),
     onBackPress: () -> Unit
 ) {
@@ -72,6 +75,7 @@ fun AlbumDetailsScreen(
         albumUiState.isLoading -> {
             CircularProgressIndicator(color = Color.Black)
         }
+
         albumUiState.error != null -> {
             Text(
                 text = albumUiState.error,
@@ -81,6 +85,7 @@ fun AlbumDetailsScreen(
                     .padding(16.dp)
             )
         }
+
         albumUiState.album != null -> {
             AlbumDetailsContent(
                 album = albumUiState.album,
@@ -98,7 +103,6 @@ fun AlbumDetailsContent(
     copyright: String = "Copyright © 2024 Apple Inc. All rights reserved.",
     onBackPress: () -> Unit
 ) {
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -128,8 +132,6 @@ fun AlbumDetailsContent(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Album Info
         Column(modifier = Modifier.padding(16.dp)) {
@@ -173,6 +175,7 @@ fun AlbumDetailsContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
                 .padding(bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -192,23 +195,18 @@ fun AlbumDetailsContent(
             }
         }
     }
+
 }
 
 @Composable
 private fun setBarColors() {
     val systemUiController = rememberSystemUiController()
-    val useDarkIcons = !isSystemInDarkTheme()
     val statusBarLight = Color.White.copy(alpha = 0.2f)
-    val statusBarDark = Color.Black
 
-    DisposableEffect(systemUiController, useDarkIcons) {
+    DisposableEffect(systemUiController, false) {
         systemUiController.setStatusBarColor(
-            color = if (useDarkIcons) {
-                statusBarLight
-            } else {
-                statusBarDark
-            },
-            darkIcons = useDarkIcons
+            color = statusBarLight,
+            darkIcons = false
         )
         onDispose { }
     }
