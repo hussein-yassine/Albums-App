@@ -30,6 +30,261 @@ Please refer to the demo by clicking [Here](https://drive.google.com/file/d/1H1W
 - [Realm for Android](https://realm.io/products/realm-database/)
 - [Retrofit for networking](https://square.github.io/retrofit/)
 
+## Code Snippets
+### UI
+#### MainActivity
+        class MainActivity : ComponentActivity() {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setContent {
+                SongsComposeTheme {
+                    // A surface container using the 'background' color from the theme
+                    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                        AppNavHost()
+                    }
+                }
+            }
+        }
+    } 
+    
+#### AlbumsScreen
+    @Composable
+    fun AlbumsScreen(
+        viewModel: AlbumsViewModel = hiltViewModel(),
+        onAlbumClick: (String, String) -> Unit
+    ) {
+        val uiState by viewModel.uiState.collectAsState()
+    
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "Top 100 Albums", style = MaterialTheme.typography.headlineMedium) },
+                    actions = {
+                        if (uiState.error != null && uiState.albums.isEmpty()) {
+                            IconButton(onClick = { viewModel.retryFetch() }) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Retry",
+                                    tint = Color.Black
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center // Center the content within the Box
+            ) {
+                when {
+                    uiState.isLoading -> {
+                        CircularProgressIndicator()
+                    }
+                    uiState.error != null && uiState.albums.isEmpty() -> {
+                        Text(
+                            text = "Failed to load albums. Please try again.",
+                            color = Color.Red,
+                            textAlign = TextAlign.Center // Center the text within the Text composable
+                        )
+                    }
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(uiState.albums) { album ->
+                                AlbumItem(album = album, onAlbumClick = onAlbumClick)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+#### AlbumDetailsScreen
+    @Composable
+    fun AlbumDetailsScreen(
+        albumId: String,
+        copyright: String,
+        viewModel: AlbumDetailsViewModel = hiltViewModel(),
+        navController: NavController
+    ) {
+        val uiState by viewModel.uiState.collectAsState()
+    
+        LaunchedEffect(Unit) {
+            viewModel.getAlbumDetails(albumId)
+        }
+    
+        when {
+            uiState.isLoading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            uiState.error != null -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "Failed to load album details. Please try again.", color = Color.Red)
+                }
+            }
+            uiState.album != null -> {
+                val album = uiState.album
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        AsyncImage(
+                            model = album.artworkUrl100,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .padding(top = 16.dp)
+                        )
+                        IconButton(
+                            onClick = { navController.popBackStack() },
+                            modifier = Modifier
+                                .padding(top = 32.dp, start = 16.dp)
+                                .background(color = Color.Gray.copy(alpha = 0.6f), shape = CircleShape)
+                                .padding(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.Black
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = album.name, style = MaterialTheme.typography.headlineMedium)
+                    Text(text = album.artistName, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    GenresList(genres = album.genres)
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(text = formatDate(album.releaseDate), style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = copyright, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { /* TODO: Navigate to album URL */ },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text(text = "Visit Album")
+                    }
+                }
+            }
+        }
+    }
+
+### Repository
+    interface AlbumsRepository {
+        suspend fun getAlbums(count: Int): Flow<Result<RealmFeed>>
+        suspend fun getAlbumById(albumId: String): Result<RealmAlbum>
+    }
+    
+    @Singleton
+    class AlbumsRepositoryImpl @Inject constructor(
+        private val albumsApi: AlbumsApi,
+        private val coroutineDispatcher: CoroutineDispatcher
+    ) : AlbumsRepository {
+
+    override suspend fun getAlbums(count: Int): Flow<Result<RealmFeed>> {
+        return flow {
+            val localFeed = getLocalFeed()
+            if (localFeed?.albums?.isNotEmpty() == true) {
+                emit(Result.success(localFeed))
+            }
+            try {
+                val response = withContext(coroutineDispatcher) {
+                    albumsApi.getTopSongs(count = count)
+                }
+                val realmFeed = response.feed.toRealmFeed()
+                saveFeedToLocal(realmFeed)
+                emit(Result.success(realmFeed))
+            } catch (e: Exception) {
+                localFeed?.let { feed ->
+                    if (feed.albums?.isNotEmpty() == true){
+                        emit(Result.success(feed))
+                    } else{
+                        emit(Result.failure(e))
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun getAlbumById(albumId: String): Result<RealmAlbum> {
+        return withContext(coroutineDispatcher) {
+            val album = getLocalAlbumById(albumId)
+            if (album != null) {
+                Result.success(album)
+            } else {
+                Result.failure(Exception("Album not found"))
+            }
+        }
+    }
+    }
+
+### ViewModels
+
+#### AlbumsViewModel
+    @HiltViewModel
+    class AlbumsViewModel @Inject constructor(
+        private val repository: AlbumsRepository
+    ) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(AlbumUiState(isLoading = true))
+    val uiState: StateFlow<AlbumUiState> = _uiState
+
+    init {
+        getTopAlbums()
+    }
+
+    private fun getTopAlbums() {
+        viewModelScope.launch {
+            repository
+                .getAlbums(100)
+                .collect { result ->
+                    result.onSuccess { feed ->
+                        _uiState.update { it.copy(isLoading = false, albums = feed.albums) }
+                    }.onFailure { error ->
+                        _uiState.update { it.copy(isLoading = false, error = error.localizedMessage) }
+                    }
+                }
+        }
+    }
+
+    fun retryFetch() {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        getTopAlbums()
+    }
+    }
+
+### AlbumDetailsViewModel
+    @HiltViewModel
+    class AlbumDetailsViewModel @Inject constructor(
+        private val repository: AlbumsRepository
+    ) : ViewModel() {
+    
+        private val _uiState = MutableStateFlow(AlbumDetailsUiState(isLoading = true))
+        val uiState: StateFlow<AlbumDetailsUiState> = _uiState
+    
+        fun getAlbumDetails(albumId: String) {
+            viewModelScope.launch {
+                repository.getAlbumById(albumId)
+                    .onSuccess { album ->
+                        _uiState.update { it.copy(isLoading = false, album = album.toAlbumUiModel()) }
+                    }.onFailure { error ->
+                        _uiState.update { it.copy(isLoading = false, error = error.localizedMessage) }
+                    }
+            }
+        }
+    }
+
 ## Getting Started
 
 ### Prerequisites
